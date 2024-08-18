@@ -23,18 +23,25 @@ stages:
 
   # Put your custom actions behind this comment
 
-  - name: example-packages # Sample module using the built-in Apt module to install packages
+  - name: install-linux-surface
+    type: shell
+    commands:
+      - wget -qO - https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/linux-surface.gpg
+      - echo "deb [arch=amd64] https://pkg.surfacelinux.com/debian release main" > /etc/apt/sources.list.d/linux-surface.list
+      - apt-get update
+      - apt-get install -y linux-image-surface linux-headers-surface libwacom-surface iptsd
+      - update-grub
+      - apt-get clean
+      - rm -rf /var/lib/apt/lists/*
+
+
+  - name: vim # Sample module using the built-in Apt module to install packages
     type: apt
     source:
       packages:
       - vim
 
-  - name: example-commands # Sample module demonstrating the Shell module with custom commands
-    type: shell
-    commands:
-    - echo Example output
-
-  - name: example-modules # Sample module demonstrating importing local and remote modules
+  - name: base # Sample module demonstrating importing local and remote modules
     type: includes
     includes:
       - modules/50-install-debs.yml # Sample local module present in this repository
@@ -75,14 +82,3 @@ stages:
       - rm -rf /tmp/*
       - rm -rf /var/tmp/*
       - rm -rf /sources
-
-  - name: install-linux-surface
-    type: shell
-    commands:
-      - wget -qO - https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/linux-surface.gpg
-      - echo "deb [arch=amd64] https://pkg.surfacelinux.com/debian release main" > /etc/apt/sources.list.d/linux-surface.list
-      - apt-get update
-      - apt-get install -y linux-image-surface linux-headers-surface libwacom-surface iptsd
-      - update-grub
-      - apt-get clean
-      - rm -rf /var/lib/apt/lists/*
